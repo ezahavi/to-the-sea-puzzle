@@ -1,26 +1,41 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <GameSelector v-if="currentGame === ''" @select="selectGame" />
+    <FlashcardGame v-if="currentGame === 'flip'" :cards="flashcards" @back="currentGame = ''" />
+    <MatchCardsGame v-if="currentGame === 'match'" :cards="flashcards" @back="currentGame = ''" />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { flashcards } from "./flashcards";
+import GameSelector from "./components/GameSelector.vue";
+import FlashcardGame from "./components/FlashcardGame.vue";
+import MatchCardsGame from "./components/MatchCardsGame.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
+    GameSelector,
+    FlashcardGame,
+    MatchCardsGame
+  },
+  data() {
+    return {
+      flashcards,
+      currentGame: ""
+    };
+  },
+  methods: {
+    selectGame(game) {
+      this.currentGame = game;
+    }
   }
-}
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  margin: 0;
 }
 </style>
+
