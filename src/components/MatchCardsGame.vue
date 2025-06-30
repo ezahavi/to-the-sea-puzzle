@@ -1,9 +1,5 @@
 <template>
   <div class="match-container">
-    <div class="button-bar">
-      <button @click="$emit('back')">Back to Menu</button>
-      <button @click="nextBatch">Next</button>
-    </div>
     <h2>Match the descriptions to the images</h2>
 
     <div class="match-columns">
@@ -17,7 +13,6 @@
           @drop="handleDrop(card)"
         >
           <img :src="card.image" alt="Card Image" />
-          <div class="image-id">#{{ card.id }}</div>
         </div>
       </div>
 
@@ -34,6 +29,10 @@
           <div class="desc-card-text">{{ card.description }}</div>
         </div>
       </div>
+    </div>
+    <div class="button-bar">
+      <button @click="$emit('back')">Back to Menu</button>
+      <button @click="nextBatch">Next</button>
     </div>
   </div>
 </template>
