@@ -2,6 +2,15 @@
   <div class="match-container">
     <h2>Match the descriptions to the images</h2>
 
+    <!-- Card‑type selector (does NOT auto‑refresh; hit “Next” to apply) -->
+    <div class="type-selector" style="margin-bottom:12px;">
+      <label for="cardTypeSelect">Card type:&nbsp;</label>
+      <select id="cardTypeSelect" v-model="selectedType">
+        <option value="">All</option>
+        <option v-for="t in availableTypes" :key="t" :value="t">{{ t }}</option>
+      </select>
+    </div>
+
     <div class="match-columns">
       <div class="cards">
         <div
@@ -30,6 +39,7 @@
         </div>
       </div>
     </div>
+
     <div class="button-bar">
       <button @click="$emit('back')">Back to Menu</button>
       <button @click="nextBatch">Next</button>
@@ -42,9 +52,10 @@ export default {
   name: "MatchCardsGame",
   props: ["cards"],
   data() {
-    const shuffled = this.shuffle([...this.cards]);
     return {
-      allCards: shuffled,
+      selectedType: "",            // value bound to <select>
+      availableTypes: [],           // distinct "type" values
+      allCards: [],                 // shuffled pool respecting selectedType
       currentIndex: 0,
       draggedCard: null,
       matchedIds: []
@@ -62,6 +73,30 @@ export default {
     }
   },
   methods: {
+    // ───────────── batching / filtering ─────────────
+    rebuildPool() {
+      const pool = this.selectedType
+        ? this.cards.filter(c => c.type === this.selectedType)
+        : this.cards;
+      this.allCards = this.shuffle([...pool]);
+      this.currentIndex = 0;
+    },
+    nextBatch() {
+      // apply filter if user changed type since last time
+      if (this.needsRebuild) {
+        this.rebuildPool();
+        this.needsRebuild = false;
+      }
+
+      this.matchedIds = [];
+      if (this.currentIndex + 4 >= this.allCards.length) {
+        this.currentIndex = 0;
+      } else {
+        this.currentIndex += 4;
+      }
+    },
+
+    // ───────────── drag‑and‑drop ─────────────
     handleDragStart(card) {
       this.draggedCard = card;
     },
@@ -71,29 +106,34 @@ export default {
       }
       this.draggedCard = null;
     },
-    nextBatch() {
-      this.matchedIds = [];
-      if (this.currentIndex + 4 >= this.allCards.length) {
-        this.currentIndex = 0;
-      } else {
-        this.currentIndex += 4;
-      }
-    },
+
+    // ───────────── utils ─────────────
     shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
+      const a = [...array];
+      for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        [a[i], a[j]] = [a[j], a[i]];
       }
-      return array;
+      return a;
+    }
+  },
+  watch: {
+    // mark that we need a fresh pool when user picks a new type
+    selectedType() {
+      this.needsRebuild = true;
     }
   },
   created() {
-    this.allCards = this.shuffle([...this.cards]);
+    // distinct card types for the selector
+    this.availableTypes = [...new Set(this.cards.map(c => c.type))];
+    this.rebuildPool();
+    this.needsRebuild = false;
   }
 };
 </script>
 
 <style scoped>
+/* identical layout & styles from the original component */
 .match-container {
   display: flex;
   flex-direction: column;
@@ -112,10 +152,9 @@ export default {
   justify-content: center;
   align-items: flex-start;
   gap: 20px;
-  flex-wrap: wrap; /* allows stacking on small screens */
+  flex-wrap: wrap;
 }
 
-/* Columns */
 .cards,
 .descriptions {
   display: flex;
@@ -123,7 +162,6 @@ export default {
   gap: 10px;
 }
 
-/* Card styles */
 .image-card,
 .description-card {
   border: 2px solid #333;
@@ -138,7 +176,6 @@ export default {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Smaller cards on mobile */
 @media (max-width: 600px) {
   .image-card,
   .description-card {
@@ -152,7 +189,6 @@ export default {
   }
 }
 
-/* Matched state */
 .image-card.matched,
 .description-card.matched {
   border-color: green;
@@ -162,12 +198,6 @@ export default {
 .image-card img {
   max-width: 100%;
   max-height: 100%;
-}
-
-.image-id {
-  font-size: 14px;
-  margin-top: 4px;
-  color: #555;
 }
 
 .description-card {
