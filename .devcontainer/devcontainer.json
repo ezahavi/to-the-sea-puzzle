@@ -1,0 +1,18 @@
+{
+  "name": "to-the-sea",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "octref.vetur",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ],
+  "forwardPorts": [8080],
+  "remoteUser": "eitan",
+  "postCreateCommand": "[ -f package.json ] || vue create . --default --packageManager npm"
+}
