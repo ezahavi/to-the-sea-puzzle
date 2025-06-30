@@ -2,16 +2,21 @@
   <div class="match-container">
     <h2>Match the descriptions to the images</h2>
 
-    <!-- Card‑type selector (does NOT auto‑refresh; hit “Next” to apply) -->
+    <!-- Card-type selector (auto-refreshes grid on change) -->
     <div class="type-selector" style="margin-bottom:12px;">
       <label for="cardTypeSelect">Card type:&nbsp;</label>
       <select id="cardTypeSelect" v-model="selectedType">
         <option value="">All</option>
-        <option v-for="t in availableTypes" :key="t" :value="t">{{ t }}</option>
+        <option
+          v-for="t in availableTypes"
+          :key="t"
+          :value="t"
+        >{{ t }}</option>
       </select>
     </div>
 
     <div class="match-columns">
+      <!-- Image column -->
       <div class="cards">
         <div
           v-for="card in currentImageCards"
@@ -25,6 +30,7 @@
         </div>
       </div>
 
+      <!-- Description column -->
       <div class="descriptions">
         <div
           v-for="card in currentDescriptionCards"
@@ -51,16 +57,24 @@
 export default {
   name: "MatchCardsGame",
   props: ["cards"],
+
   data() {
     return {
-      selectedType: "",            // value bound to <select>
-      availableTypes: [],           // distinct "type" values
-      allCards: [],                 // shuffled pool respecting selectedType
-      currentIndex: 0,
+      /* dropdown state */
+      selectedType: "",       // bound to <select>
+      availableTypes: [],     // distinct “type” values for options
+
+      /* card-deck state */
+      allCards: [],           // current working deck (filtered + shuffled)
+      currentIndex: 0,        // start of current 4-card batch
+
+      /* drag-and-drop */
       draggedCard: null,
       matchedIds: []
     };
   },
+
+  /* ─────────────── derived data ─────────────── */
   computed: {
     currentBatch() {
       return this.allCards.slice(this.currentIndex, this.currentIndex + 4);
@@ -69,34 +83,31 @@ export default {
       return this.currentBatch;
     },
     currentDescriptionCards() {
-      return this.shuffle([...this.currentBatch]);
+      return this.shuffle([...this.currentBatch]); // reshuffle order
     }
   },
+
+  /* ─────────────── methods ─────────────── */
   methods: {
-    // ───────────── batching / filtering ─────────────
+    /* rebuilds deck when type changes or on first load */
     rebuildPool() {
       const pool = this.selectedType
         ? this.cards.filter(c => c.type === this.selectedType)
         : this.cards;
       this.allCards = this.shuffle([...pool]);
-      this.currentIndex = 0;
+      this.currentIndex = 0;          // show first batch immediately
     },
-    nextBatch() {
-      // apply filter if user changed type since last time
-      if (this.needsRebuild) {
-        this.rebuildPool();
-        this.needsRebuild = false;
-      }
 
-      this.matchedIds = [];
+    nextBatch() {
+      this.matchedIds = [];           // clear matches
       if (this.currentIndex + 4 >= this.allCards.length) {
-        this.currentIndex = 0;
+        this.currentIndex = 0;        // wrap around
       } else {
         this.currentIndex += 4;
       }
     },
 
-    // ───────────── drag‑and‑drop ─────────────
+    /* drag-and-drop handlers */
     handleDragStart(card) {
       this.draggedCard = card;
     },
@@ -107,7 +118,7 @@ export default {
       this.draggedCard = null;
     },
 
-    // ───────────── utils ─────────────
+    /* Fisher–Yates shuffle */
     shuffle(array) {
       const a = [...array];
       for (let i = a.length - 1; i > 0; i--) {
@@ -117,17 +128,21 @@ export default {
       return a;
     }
   },
+
+  /* ─────────────── watchers ─────────────── */
   watch: {
-    // mark that we need a fresh pool when user picks a new type
+    /* Auto-rebuild deck & reset matches whenever dropdown changes */
     selectedType() {
-      this.needsRebuild = true;
+      this.rebuildPool();
+      this.matchedIds = [];
     }
   },
+
+  /* ─────────────── lifecycle ─────────────── */
   created() {
-    // distinct card types for the selector
+    // fill dropdown options and build initial deck
     this.availableTypes = [...new Set(this.cards.map(c => c.type))];
     this.rebuildPool();
-    this.needsRebuild = false;
   }
 };
 </script>
