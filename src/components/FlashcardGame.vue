@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <h2>Click on the card to show the other side</h2>
+
     <div class="card" @click="flipCard">
       <div v-if="flipped" class="description">
         <div class="card-id">#{{ currentCard.id }}</div>
@@ -8,8 +9,13 @@
       </div>
       <img v-else :src="currentCard.image" alt="Flashcard image" class="image" />
     </div>
-    <button @click="nextCard">Next</button>
-    <button @click="$emit('back')">Back to Menu</button>
+
+    <!-- Button bar -->
+    <div class="button-bar">
+      <button @click="previousCard">Previous</button>
+      <button @click="nextCard">Next</button>
+      <button @click="$emit('back')">Back to Menu</button>
+    </div>
   </div>
 </template>
 
@@ -37,6 +43,12 @@ export default {
       this.flipped = false;
       this.index = (this.index + 1) % this.shuffledCards.length;
     },
+    previousCard() {
+      this.flipped = false;
+      this.index =
+        (this.index - 1 + this.shuffledCards.length) %
+        this.shuffledCards.length;
+    },
     shuffle(array) {
       const copy = [...array];
       for (let i = copy.length - 1; i > 0; i--) {
@@ -59,6 +71,7 @@ export default {
   align-items: center;
   margin-top: 30px;
 }
+
 .card {
   width: 300px;
   height: 200px;
@@ -71,6 +84,7 @@ export default {
   background: #f8f8f8;
   text-align: center;
 }
+
 .description {
   display: flex;
   flex-direction: column;
@@ -79,17 +93,26 @@ export default {
   text-align: center;
   padding: 10px;
 }
+
 .card-id {
   font-weight: bold;
   margin-bottom: 5px;
 }
+
 .card-text {
   font-size: 18px;
 }
+
 .image {
   max-width: 100%;
   max-height: 100%;
 }
+
+.button-bar {
+  display: flex;
+  gap: 10px;        /* keeps buttons evenly spaced */
+}
+
 button {
   margin: 5px;
 }
