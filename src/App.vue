@@ -1,8 +1,18 @@
 <template>
   <div id="app">
-    <GameSelector v-if="currentGame === ''" @select="selectGame" />
-    <FlashcardGame v-if="currentGame === 'flip'" :cards="flashcards" @back="currentGame = ''" />
-    <MatchCardsGame v-if="currentGame === 'match'" :cards="flashcards" @back="currentGame = ''" />
+    <GameSelector 
+      v-if="currentGame === ''" 
+      :cards="flashcards"
+      :selectedType="selectedType"
+      @select="selectGame" 
+      @update:selectedType="updateSelectedType"
+    />
+    <FlashcardGame v-if="currentGame === 'flip'" :cards="filteredCards" @back="currentGame = ''" />
+    <MatchCardsGame 
+      v-if="currentGame === 'match'" 
+      :cards="filteredCards" 
+      @back="currentGame = ''" 
+    />
   </div>
 </template>
 
@@ -22,12 +32,25 @@ export default {
   data() {
     return {
       flashcards,
-      currentGame: ""
+      currentGame: "",
+      selectedType: "" // Empty string means "All"
     };
+  },
+  computed: {
+    // Filter cards based on selected type
+    filteredCards() {
+      if (!this.selectedType || this.selectedType === "") {
+        return this.flashcards; // Return all cards if no type selected
+      }
+      return this.flashcards.filter(card => card.type === this.selectedType);
+    }
   },
   methods: {
     selectGame(game) {
       this.currentGame = game;
+    },
+    updateSelectedType(type) {
+      this.selectedType = type;
     }
   }
 };

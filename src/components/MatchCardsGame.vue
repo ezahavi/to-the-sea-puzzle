@@ -2,19 +2,6 @@
   <div class="match-container">
     <h2>Match the descriptions to the images</h2>
 
-    <!-- Card-type selector (auto-refreshes grid on change) -->
-    <div class="type-selector" style="margin-bottom:12px;">
-      <label for="cardTypeSelect">Card type:&nbsp;</label>
-      <select id="cardTypeSelect" v-model="selectedType">
-        <option value="">All</option>
-        <option
-          v-for="t in availableTypes"
-          :key="t"
-          :value="t"
-        >{{ t }}</option>
-      </select>
-    </div>
-
     <div class="match-columns">
       <!-- Image column -->
       <div class="cards">
@@ -34,7 +21,7 @@
       <div class="descriptions">
         <div
           v-for="card in currentDescriptionCards"
-          :key="card.id"
+          :key="card.id"  
           class="description-card"
           draggable="true"
           @dragstart="handleDragStart(card)"
@@ -56,14 +43,15 @@
 <script>
 export default {
   name: "MatchCardsGame",
-  props: ["cards"],
+  props: {
+    cards: {
+      type: Array,
+      required: true
+    }
+  },
 
   data() {
     return {
-      /* dropdown state */
-      selectedType: "",       // bound to <select>
-      availableTypes: [],     // distinct “type” values for options
-
       /* card-deck state */
       allCards: [],           // current working deck (filtered + shuffled)
       currentIndex: 0,        // start of current 4-card batch
@@ -89,12 +77,9 @@ export default {
 
   /* ─────────────── methods ─────────────── */
   methods: {
-    /* rebuilds deck when type changes or on first load */
+    /* rebuilds deck when cards change or on first load */
     rebuildPool() {
-      const pool = this.selectedType
-        ? this.cards.filter(c => c.type === this.selectedType)
-        : this.cards;
-      this.allCards = this.shuffle([...pool]);
+      this.allCards = this.shuffle([...this.cards]);
       this.currentIndex = 0;          // show first batch immediately
     },
 
@@ -131,8 +116,8 @@ export default {
 
   /* ─────────────── watchers ─────────────── */
   watch: {
-    /* Auto-rebuild deck & reset matches whenever dropdown changes */
-    selectedType() {
+    /* Auto-rebuild deck & reset matches whenever cards prop changes */
+    cards() {
       this.rebuildPool();
       this.matchedIds = [];
     }
@@ -140,8 +125,7 @@ export default {
 
   /* ─────────────── lifecycle ─────────────── */
   created() {
-    // fill dropdown options and build initial deck
-    this.availableTypes = [...new Set(this.cards.map(c => c.type))];
+    // build initial deck
     this.rebuildPool();
   }
 };
