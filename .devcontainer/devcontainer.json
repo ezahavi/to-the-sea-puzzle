@@ -1,18 +1,33 @@
 {
-  "name": "to-the-sea",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
-  },
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
-  },
-  "extensions": [
-    "octref.vetur",
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint"
-  ],
-  "forwardPorts": [8080],
+  "name": "vue-dev",
+  "build": { "dockerfile": "Dockerfile" },
   "remoteUser": "eitan",
-  "postCreateCommand": "[ -f package.json ] || vue create . --default --packageManager npm"
+  "updateRemoteUserUID": true,
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" }
+  },
+  "forwardPorts": [5173, 3000, 8080],
+  "portsAttributes": {
+    "5173": { "label": "Vite dev server" }
+  },
+  "mounts": [
+    "source=pnpm-store,target=/home/vscode/.local/share/pnpm,type=volume",
+    "source=npm-cache,target=/home/vscode/.npm,type=volume"
+  ],
+  "postCreateCommand": "corepack enable && (test -f pnpm-lock.yaml && pnpm i || (test -f package-lock.json && npm ci || (test -f yarn.lock && yarn install || true)))",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "Vue.volar",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "runArgs": ["--init"]
 }
+
