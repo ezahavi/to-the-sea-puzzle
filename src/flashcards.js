@@ -130,8 +130,7 @@ export const flashcards = [
 { id: 129, description: "ערוצים 12, 14, 20", image: "/images/channel12.gif", type: "Comm Channels" },
 { id: 130, description: "ערוצים 15, 17", image: "/images/channel15.gif", type: "Comm Channels" },
 { id: 131, description: "ערוץ 16: הקמת קשר והודעות מכל הסוגים", image: "/images/channel16.gif", type: "Comm Channels" },
-{ id: 132, description: "ערוץ 17: להגנה על 16 בתוך הספינה או לדינגי", image: "/images/channel17.gif", type: "Comm Channels" },
-{ id: 133, description: "ערוצים 23, 24, 25, 26, 27, 28", image: "/images/channel23.gif", type: "Comm Channels" },
-{ id: 134, description: "ערוץ 70 DSC", image: "/images/channel70.gif", type: "Comm Channels" },
-{ id: 135, description: "ערוצים 75, 76", image: "/images/channel75.gif", type: "Comm Channels" },
+{ id: 132, description: "ערוצים 23, 24, 25, 26, 27, 28", image: "/images/channel23.gif", type: "Comm Channels" },
+{ id: 133, description: "ערוץ 70 DSC", image: "/images/channel70.gif", type: "Comm Channels" },
+{ id: 134, description: "ערוצים 75, 76", image: "/images/channel75.gif", type: "Comm Channels" },
 ];
